@@ -16,14 +16,15 @@
 #import "ProfileViewController.h"
 
 
-@interface TweetsViewController () <UITableViewDataSource, UITableViewDelegate>
+@interface TweetsViewController () <UITableViewDataSource, UITableViewDelegate,TweetCellDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (weak, nonatomic) IBOutlet UITableView *tableMenuView;
 @property (nonatomic, strong) NSArray *tableMenuData;
 @property (nonatomic, strong) UIRefreshControl *refreshControl;
 @property (nonatomic,strong) NSMutableArray *tweets;
 @property (nonatomic, assign) BOOL reloading;
-
+@property (nonatomic, assign) BOOL menuOpened;
+@property (nonatomic, strong) NSString *navigationTitle;
 @end
 
 @implementation TweetsViewController
@@ -45,8 +46,11 @@
     [self.tableMenuView setFrame:CGRectMake(-self.tableMenuView.frame.size.width, self.tableMenuView.frame.origin.y, self.tableMenuView.frame.size.width, self.tableMenuView.frame.size.height)];
     [self.tableMenuView reloadData];
     
-    UIBarButtonItem *leftBarButtonItem =[[UIBarButtonItem alloc] initWithTitle:@"Sign Out" style:UIBarButtonItemStylePlain target:self action:@selector(onLogOut)];
+    self.navigationItem.title = @"Home";
+    
+    UIBarButtonItem *leftBarButtonItem =[[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStylePlain target:self action:@selector(openMenu)];
     self.navigationItem.leftBarButtonItem = leftBarButtonItem;
+    self.menuOpened = false;
     
     UIBarButtonItem *rightBarButtonItem =[[UIBarButtonItem alloc] initWithTitle:@"Compose" style:UIBarButtonItemStylePlain target:self action:@selector(onCompose)];
     self.navigationItem.rightBarButtonItem = rightBarButtonItem;
@@ -76,11 +80,18 @@
 
 -(void)handleSwipeLeft:(UISwipeGestureRecognizer*)recognizer{
     NSLog(@"Swiped Left");
-    [self animateMenu];
+    [self closeMenu];
 }
 -(void)handleSwipeRight:(UISwipeGestureRecognizer*)recognizer{
     NSLog(@"Swiped Right");
-    
+    [self openMenu];
+}
+
+-(void)openMenu {
+    if (self.menuOpened == true) {
+        [self closeMenu];
+        return;
+    }
     [self.tableMenuView setFrame:CGRectMake(-self.tableMenuView.frame.size.width, self.tableMenuView.frame.origin.y, self.tableMenuView.frame.size.width, self.tableMenuView.frame.size.height)];
     [self.tableMenuView setHidden:NO];
     
@@ -91,10 +102,10 @@
                          
                      }
      ];
-    
+    self.menuOpened = true;
 }
 
--(void)animateMenu {
+-(void)closeMenu {
     [UIView animateWithDuration:.25
                      animations:^{
                          [self.tableView setFrame:CGRectMake(0, self.tableView.frame.origin.y, self.tableView.frame.size.width, self.tableView.frame.size.height)];
@@ -104,29 +115,45 @@
                          [self.tableMenuView setHidden:YES];
                      }
      ];
+    self.menuOpened = false;
 }
 
 - (void)reload {
-    [self reloadWithOffset:[NSNumber numberWithInt:0]];
+    [self reloadWithOffset:[NSNumber numberWithInt:0] :@"Home"];
 }
 
-- (void)reloadWithOffset:(NSNumber *)offset {
+- (void)reloadWithOffset:(NSNumber *)offset :(NSString *)navigationTitle {
     // self.reloading = YES;
     // Do any additional setup after loading the view from its nib.
+    
     NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
     params[@"count"] = offset;
-    [[TwitterClient sharedInstance] homeTimelineWithParams:params completion:^(NSArray *tweets, NSError *error) {
-        self.tweets = [NSMutableArray arrayWithArray:tweets];
-        [self.refreshControl endRefreshing];
-        [self.tableView reloadData];
-        //self.reloading = NO;
-    }];
+    
+     if ([navigationTitle isEqualToString:@"Mention"]) {
+         
+         [[TwitterClient sharedInstance] mentionTimelineWithParams:params completion:^(NSArray *tweets, NSError *error) {
+             self.tweets = [NSMutableArray arrayWithArray:tweets];
+             [self.refreshControl endRefreshing];
+             [self.tableView reloadData];
+             self.navigationItem.title = @"Mentions";
+         }];
+     }
+     else {
+         [[TwitterClient sharedInstance] homeTimelineWithParams:params completion:^(NSArray *tweets, NSError *error) {
+             self.tweets = [NSMutableArray arrayWithArray:tweets];
+             [self.refreshControl endRefreshing];
+             [self.tableView reloadData];
+             self.navigationItem.title = @"Home";
+         }];
+         
+     }
 }
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (tableView == self.tableView) {
         TweetCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TweetCell" forIndexPath:indexPath];
+        cell.delegate = self;
         [cell setTweet:self.tweets[indexPath.row]];
         return cell;
     }
@@ -159,13 +186,44 @@
         [self.navigationController pushViewController:tvc animated:YES];
     } else {
         if ([self.tableMenuData[indexPath.row] isEqualToString:@"Log Out"]) {
-            [self animateMenu];
+            [self onLogOut];
+        }
+        else if([self.tableMenuData[indexPath.row] isEqualToString:@"Home"]) {
+            [self closeMenu];
+            [self reloadWithOffset:[NSNumber numberWithInt:0] :@"Home"];
+        }
+        else if([self.tableMenuData[indexPath.row] isEqualToString:@"Profile"]) {
+            [self closeMenu];
             ProfileViewController *tvc = [[ProfileViewController alloc] init];
+            tvc.userStatus = nil;
             [self.navigationController pushViewController:tvc animated:YES];
-            //[User logout];
+        }
+        else if([self.tableMenuData[indexPath.row] isEqualToString:@"Mentions"]) {
+            [self closeMenu];
+            [self reloadWithOffset:[NSNumber numberWithInt:0] :@"Mention"];
         }
     }
 }
+
+#pragma mark - Tweet cell delegate methods
+- (void) tweetCell:(TweetCell *)cell didImageClick:(BOOL)value {
+    
+    NSIndexPath * indexPath = [self.tableView indexPathForCell:cell];
+    Tweet *tweet = self.tweets[indexPath.row];
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setObject: tweet.author.screenname forKey: @"screen_name"];
+    
+    
+    [[TwitterClient sharedInstance] getUserStatus:params completion:^(NSDictionary *userStatus, NSError *error) {
+        ProfileViewController *pvc = [[ProfileViewController alloc] init];
+        pvc.userStatus = userStatus;
+        [self.navigationController pushViewController:pvc animated:YES];
+        }];
+    
+    NSLog(@"Image clicked");
+}
+
 
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {

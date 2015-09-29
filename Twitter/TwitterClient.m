@@ -56,7 +56,7 @@ NSString * const kTwitterBaseUrl = @"https://api.twitter.com";
         [self.requestSerializer saveAccessToken:accessToken];
         
         [self GET:@"1.1/account/verify_credentials.json" parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            //NSLog(@"current suer: %@", responseObject);
+            NSLog(@"verify credentions api response: %@", responseObject);
             
             User *user = [[User alloc] initWithDictionary:responseObject];
             [User setCurrentUser:user];
@@ -81,6 +81,23 @@ NSString * const kTwitterBaseUrl = @"https://api.twitter.com";
      NSLog(@"In homeTimelineWithParams");
     
     [self GET:@"1.1/statuses/home_timeline.json" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSArray *tweets = [Tweet tweetsWithArray:responseObject];
+        NSLog(@"responseObject from Twitter %@", responseObject);
+        completion(tweets, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"error %@", error);
+        
+        completion(nil, error);
+        
+    }];
+}
+
+
+- (void)mentionTimelineWithParams:(NSDictionary *)params completion:(void (^)(NSArray *tweets, NSError *error))completion {
+    
+    NSLog(@"In homeTimelineWithParams");
+    
+    [self GET:@"1.1/statuses/mentions_timeline.json" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSArray *tweets = [Tweet tweetsWithArray:responseObject];
         NSLog(@"responseObject from Twitter %@", responseObject);
         completion(tweets, nil);
@@ -139,6 +156,17 @@ NSString * const kTwitterBaseUrl = @"https://api.twitter.com";
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"error %@", error);
         
+    }];
+}
+
+- (void) getUserStatus:(NSDictionary *)params completion:(void (^)(NSDictionary *userStatus, NSError *error))completion {
+        
+    [[TwitterClient sharedInstance] GET: @"1.1/users/show.json" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"getUserStatus from Twitter %@", responseObject);
+        completion(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"error %@", error);
+        completion(nil, error);
     }];
 }
 

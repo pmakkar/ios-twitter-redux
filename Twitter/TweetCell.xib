@@ -16,6 +16,7 @@
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xMj-pS-CG1">
                         <rect key="frame" x="10" y="10" width="70" height="70"/>
+                        <gestureRecognizers/>
                         <constraints>
                             <constraint firstAttribute="height" constant="70" id="41v-pb-UjX"/>
                             <constraint firstAttribute="width" constant="70" id="P1s-4r-MGf"/>
@@ -70,6 +71,19 @@
                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nwT-NS-Dmz">
+                        <rect key="frame" x="0.0" y="0.0" width="46" height="30"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="70" id="KQk-pK-Dn0"/>
+                            <constraint firstAttribute="height" constant="70" id="oBz-Vs-8zo"/>
+                        </constraints>
+                        <state key="normal" title="Button">
+                            <color key="titleColor" white="1" alpha="0.0" colorSpace="calibratedWhite"/>
+                        </state>
+                        <connections>
+                            <action selector="onClick:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="HPT-uc-ISh"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="Bux-Ym-Op1" firstAttribute="top" secondItem="lvR-Cg-ntE" secondAttribute="bottom" constant="35" id="1sm-cj-Px6"/>
@@ -105,6 +119,7 @@
                     <constraint firstItem="qMB-Jo-RsI" firstAttribute="leading" secondItem="xMj-pS-CG1" secondAttribute="trailing" constant="5" id="UPd-Es-yW9"/>
                     <constraint firstItem="lvR-Cg-ntE" firstAttribute="leading" secondItem="tfT-ba-WgG" secondAttribute="trailing" constant="10" id="VBr-XR-AZw"/>
                     <constraint firstItem="v0Y-qS-hjt" firstAttribute="leading" secondItem="tfT-ba-WgG" secondAttribute="trailing" constant="5" id="VOA-8v-EKc"/>
+                    <constraint firstItem="nwT-NS-Dmz" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="Ysq-xY-nS1"/>
                     <constraint firstItem="tfT-ba-WgG" firstAttribute="centerX" secondItem="snN-9j-FET" secondAttribute="centerX" id="ZQd-Wt-fiB"/>
                     <constraint firstItem="v0Y-qS-hjt" firstAttribute="leading" secondItem="tfT-ba-WgG" secondAttribute="trailing" constant="132" id="a45-jH-7Ri"/>
                     <constraint firstAttribute="bottomMargin" secondItem="Nz6-vJ-94g" secondAttribute="bottom" constant="3.5" id="aGE-yc-IHn"/>
@@ -131,6 +146,7 @@
                     <constraint firstItem="qMB-Jo-RsI" firstAttribute="top" secondItem="tfT-ba-WgG" secondAttribute="bottom" constant="5" id="szK-Pa-lNi"/>
                     <constraint firstAttribute="trailing" secondItem="v0Y-qS-hjt" secondAttribute="trailing" constant="15" id="tEA-I7-d5A"/>
                     <constraint firstAttribute="bottom" secondItem="Bux-Ym-Op1" secondAttribute="bottom" constant="10" id="tKZ-gN-vS5"/>
+                    <constraint firstItem="nwT-NS-Dmz" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="vYY-Ml-1Iy"/>
                     <constraint firstItem="Bux-Ym-Op1" firstAttribute="top" secondItem="qMB-Jo-RsI" secondAttribute="bottom" constant="5" id="xAV-U7-eQf"/>
                     <constraint firstItem="lvR-Cg-ntE" firstAttribute="leading" secondItem="xMj-pS-CG1" secondAttribute="trailing" constant="108" id="y2T-C0-LaX"/>
                     <constraint firstItem="qMB-Jo-RsI" firstAttribute="leading" secondItem="xMj-pS-CG1" secondAttribute="trailing" constant="8" id="zM1-Ri-CaN"/>

@@ -30,6 +30,9 @@
         NSLog(@"user is already logged in %@", [User currentUser].name);
         UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:[[TweetsViewController alloc] init]];
         
+        [nvc.navigationBar setTitleTextAttributes:
+         @{NSForegroundColorAttributeName:[UIColor blackColor]}];
+        
         self.window.rootViewController = nvc;
         
     } else {

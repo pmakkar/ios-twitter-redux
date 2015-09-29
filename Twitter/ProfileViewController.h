@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Tweet.h"
 
 @interface ProfileViewController : UIViewController
-
+@property (nonatomic, strong) NSDictionary *userStatus;
 @end

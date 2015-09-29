@@ -23,6 +23,10 @@ NSString *const UserDidLogoutNotification = @"UserDidLogoutNotification";
         self.screenname = dictionary[@"screen_name"];
         self.profileImageUrl = dictionary[@"profile_image_url"];
         self.tagline = dictionary[@"description"];
+        self.tweetsCount = dictionary[@"statuses_count"];
+        self.followersCount = dictionary[@"friends_count"];
+        self.followingCount = dictionary[@"followers_count"];
+        self.backgroundImageUrl = dictionary[@"profile_banner_url"];
     }
     return self;
 }
